@@ -10,7 +10,7 @@ import {
 } from "convex/react";
 import Link from "next/link";
 import Image from "next/image";
-import { Component, type ReactNode, useState } from "react";
+import { Component, type ReactNode, useRef, useState } from "react";
 import {
   ArrowUpRight,
   AtSign,
@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { normalizePhone } from "@/lib/phone";
+import type { CountryCode } from "libphonenumber-js/max";
+import { PhoneNumberField } from "@/components/PhoneNumberField";
 import { normalizeXUsername } from "@/lib/x";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +89,8 @@ function Header() {
 function Login() {
   const { signIn } = useAuthActions();
   const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState<CountryCode>("ES");
+  const phoneRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function submit(event: React.FormEvent) {
@@ -94,9 +98,10 @@ function Login() {
     setError("");
     let normalized: string;
     try {
-      normalized = normalizePhone(phone);
+      normalized = normalizePhone(phone, country);
     } catch (e) {
       setError((e as Error).message);
+      phoneRef.current?.focus();
       return;
     }
     setBusy(true);
@@ -145,29 +150,33 @@ function Login() {
               </p>
             </div>
           </div>
-          <form onSubmit={submit}>
+          <form onSubmit={submit} noValidate>
             <label htmlFor="phone">Tu número de teléfono</label>
-            <Input
-              id="phone"
-              type="tel"
-              autoComplete="tel"
-              placeholder="+34 612 345 678"
+            <PhoneNumberField
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              maxLength={40}
-              aria-describedby="phone-help"
-              className="phone-input"
+              country={country}
+              disabled={busy}
+              invalid={!!error}
+              inputRef={phoneRef}
+              onChange={(value) => {
+                setPhone(value);
+                setError("");
+              }}
+              onCountryChange={(country) => {
+                setCountry(country);
+                setError("");
+              }}
             />
             <p id="phone-help" className="field-help">
-              Incluye el prefijo de tu país. No se envía ningún SMS.
+              Elige tu país y escribe tu número. También puedes pegarlo con
+              prefijo. Sin SMS.
             </p>
             <Button type="submit" disabled={busy} className="primary-button">
               {busy ? "Comprobando acceso…" : "Entrar a la comunidad"}
               <ArrowRight size={18} />
             </Button>
             {error && (
-              <p className="form-error" role="alert">
+              <p id="phone-error" className="form-error" role="alert">
                 {error}
               </p>
             )}

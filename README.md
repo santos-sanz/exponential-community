@@ -4,7 +4,7 @@ Directorio de miembros en X. Repositorio público, teléfonos privados. Next.js 
 
 ## Comportamiento
 
-- El visitante introduce un teléfono con prefijo internacional. Se normaliza y se comprueba que esté activo en la lista de Convex. No se envía SMS.
+- España (+34) aparece seleccionada por defecto, con su bandera. El visitante escribe su número nacional, elige otro país o pega un número internacional completo. Se normaliza a E.164 y se comprueba que esté activo en la lista de Convex. No se envía SMS.
 - Convex Auth crea una sesión de siete días. Cada lectura y cambio vuelve a comprobar la membresía; revocar un número bloquea también sesiones existentes.
 - Un miembro puede consultar el directorio sin compartir su cuenta.
 - X se vincula escribiendo el `@usuario`, sin credenciales de X. La cuenta vinculada permanece oculta hasta que el miembro marque la casilla de publicación.
@@ -89,3 +89,11 @@ El directorio adopta el estilo de [goexponential.org](https://www.goexponential.
 La importación `xProfiles:importBatch` y la comprobación `xProfiles:auditBatch` son internas y requieren el CLI autenticado de Convex. El importador normaliza y deduplica usuarios de X, preserva los datos del primer origen y no crea miembros, concede acceso ni publica perfiles. Los archivos de importación se guardan en `private/`, fuera de Git.
 
 Para asociar los teléfonos posteriores hace falta una correspondencia explícita `phone` / `xUsername`. Nunca se deduce por el nombre de quien compartió el enlace.
+
+## Validación del teléfono y registro manual
+
+La interfaz permite teléfonos nacionales con un país explícito; el servidor y los importadores exigen números internacionales. Se utiliza la metadata completa de `libphonenumber-js/max`, sin extracción de números incrustados en texto, letras, extensiones ni números imposibles. Los formatos con espacios, guiones y paréntesis se normalizan; un prefijo `00` se convierte en `+`. Al pegar un número internacional completo, el selector adopta su país y muestra el formato nacional.
+
+Los 245 países y sus prefijos están en `lib/phone-countries.ts`; sus banderas son assets locales de `country-flag-icons` (MIT). Se regeneran con `node scripts/generate-phone-countries.mjs`, sin solicitudes a proveedores externos cuando el usuario usa el formulario.
+
+La función interna `members:registerMember` recibe `phone`, `username` y una decisión explícita de publicación. Permite registrar manualmente un miembro, comprueba que X no pertenezca a otro registro y conserva la asociación de usuario existente. Solo es invocable por operadores con acceso a Convex. Los números reales deben guardarse en `private/`, nunca en código, pruebas, commits o descripciones de PR.
