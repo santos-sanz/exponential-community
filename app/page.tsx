@@ -39,7 +39,7 @@ function Header() {
       <Link
         className="brand"
         href="/"
-        aria-label="Exponential Community, inicio"
+        aria-label="Directorio de X de Exponential, inicio"
       >
         <Image
           src="/brand/exponential.svg"
@@ -57,7 +57,7 @@ function Header() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Comunidad <ArrowUpRight size={14} />
+          Web de Exponential <ArrowUpRight size={14} />
         </a>
         <a
           className="nav-link"
@@ -122,12 +122,11 @@ function Login() {
   return (
     <main className="landing">
       <section className="intro">
-        <p className="eyebrow">EXPONENTIAL COMMUNITY</p>
-        <h1>Tu comunidad vive aquí.</h1>
+        <p className="eyebrow">EXPONENTIAL · DIRECTORIO DE X</p>
+        <h1>El directorio de X de Exponential.</h1>
         <p className="intro-copy">
-          Encuentra a los miembros de Exponential en X.
-          <br />
-          Conecta con quienes ya forman parte de tu comunidad.
+          Encuentra las cuentas de X que los miembros de Exponential han
+          compartido.
         </p>
       </section>
       <section className="access-section" id="acceso">
@@ -172,7 +171,7 @@ function Login() {
               prefijo. Sin SMS.
             </p>
             <Button type="submit" disabled={busy} className="primary-button">
-              {busy ? "Comprobando acceso…" : "Entrar a la comunidad"}
+              {busy ? "Comprobando acceso…" : "Entrar al directorio"}
               <ArrowRight size={18} />
             </Button>
             {error && (
@@ -198,7 +197,7 @@ function Login() {
         <div>
           <span className="section-tag tag-blue">Directorio</span>
           <p>
-            <strong>Encuentra a tu comunidad</strong>
+            <strong>Encuentra cuentas de X</strong>
             <br />
             Consulta las cuentas de X compartidas.
           </p>
@@ -274,12 +273,8 @@ function Directory() {
   return (
     <main className="directory">
       <div className="directory-heading">
-        <p className="eyebrow">TU COMUNIDAD, MÁS CERCA</p>
-        <h1>
-          Una conexión.
-          <br />
-          <span className="accent">Infinitas posibilidades.</span>
-        </h1>
+        <p className="eyebrow">CUENTAS COMPARTIDAS POR LOS MIEMBROS</p>
+        <h1>Directorio de X.</h1>
         <p>Encuentra a los miembros que han compartido su cuenta de X.</p>
       </div>
       <div className="directory-layout">
@@ -301,7 +296,7 @@ function Directory() {
           </div>
           {status === "LoadingFirstPage" ? (
             <p className="empty-text" role="status">
-              Cargando comunidad…
+              Cargando cuentas…
             </p>
           ) : visible.length ? (
             <div className="profile-grid">
@@ -459,9 +454,13 @@ export default function Home() {
   return (
     <div className="site-shell">
       <Header />
+      <p className="directory-scope">
+        Este sitio es únicamente el directorio de X. No es la comunidad de
+        Exponential.
+      </p>
       <AuthLoading>
         <main className="unavailable" role="status">
-          Conectando con la comunidad…
+          Conectando con el directorio…
         </main>
       </AuthLoading>
       <Unauthenticated>
@@ -478,9 +477,9 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Exponential Community
+          Web de Exponential
         </a>
-        <span>Las buenas ideas crecen cuando se conectan.</span>
+        <span>Solo cuentas de X compartidas por miembros.</span>
         <a
           href="https://github.com/santos-sanz/exponential-community"
           target="_blank"
