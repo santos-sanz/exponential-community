@@ -6,9 +6,9 @@ import "./globals.css";
 const sans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 export const metadata: Metadata = {
-  title: "Exponential Community · Directorio",
+  title: "Directorio de X · Exponential",
   description:
-    "Encuentra a tu comunidad en X. Un directorio de miembros, con acceso por teléfono y publicación opcional.",
+    "Directorio de cuentas de X compartidas por miembros de Exponential. Este sitio no es la comunidad. Acceso por teléfono y publicación opcional.",
   robots: { index: false, follow: false },
 };
 export default function RootLayout({
