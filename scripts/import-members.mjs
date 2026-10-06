@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { parsePhoneNumberFromString } from "libphonenumber-js/min";
+import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 const args = process.argv.slice(2);
 const input = args.find((a) => !a.startsWith("--"));
 if (
@@ -23,9 +23,9 @@ const phones = [];
 for (let i = 0; i < rows.length; i++) {
   const value = rows[i];
   const phone = value.startsWith("+")
-    ? parsePhoneNumberFromString(value)
+    ? parsePhoneNumberFromString(value, { extract: false })
     : null;
-  if (!phone?.isValid()) {
+  if (!phone?.isValid() || phone.ext || !/^[0-9+() .-]+$/.test(value)) {
     console.error(
       `Línea ${i + 1}: teléfono inválido. Usa prefijo internacional. No se importó ningún número.`,
     );

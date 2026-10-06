@@ -679,3 +679,61 @@
     margin-top: 36px;
   }
 }
+
+.phone-field {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #596273;
+  min-height: 46px;
+  background: #080808;
+}
+.phone-field:focus-within {
+  outline: 2px solid #b9c9ff;
+  outline-offset: 2px;
+}
+.phone-field[data-invalid] {
+  border-color: #f6a6a6;
+}
+.phone-country {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  border-right: 1px solid #596273;
+  font-size: 13px;
+}
+.country-flag {
+  object-fit: contain;
+  border-radius: 1px;
+}
+.country-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.country-select:disabled {
+  cursor: wait;
+}
+.country-select option {
+  color: #f5f5f5;
+  background: #080808;
+}
+.phone-field .phone-input {
+  min-width: 0;
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  border-radius: 0;
+}
+.phone-field .phone-input:focus-visible {
+  box-shadow: none;
+  outline: none;
+}

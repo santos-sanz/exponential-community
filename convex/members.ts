@@ -114,7 +114,9 @@ export const importPhones = internalMutation({
   handler: async (ctx, { phones }) => {
     if (phones.length > 250)
       throw new Error("Importa como máximo 250 teléfonos por lote.");
-    const normalized = [...new Set(phones.map(normalizePhone))];
+    const normalized = [
+      ...new Set(phones.map((phone) => normalizePhone(phone))),
+    ];
     let inserted = 0,
       existing = 0;
     for (const phone of normalized) {
@@ -147,5 +149,45 @@ export const setActive = internalMutation({
     if (!member) throw new Error("Miembro no encontrado.");
     await ctx.db.patch(member._id, { active, published: false });
     return null;
+  },
+});
+
+// Manual registration is an operator-only action, never a browser endpoint.
+export const registerMember = internalMutation({
+  args: { phone: v.string(), username: v.string(), published: v.boolean() },
+  returns: v.object({
+    created: v.boolean(),
+    username: v.string(),
+    published: v.boolean(),
+  }),
+  handler: async (ctx, { phone, username, published }) => {
+    const normalizedPhone = normalizePhone(phone);
+    const normalizedUsername = normalizeXUsername(username);
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_phone", (q) => q.eq("phone", normalizedPhone))
+      .unique();
+    const owner = await ctx.db
+      .query("members")
+      .withIndex("by_xUsername", (q) => q.eq("xUsername", normalizedUsername))
+      .unique();
+    if (owner && owner._id !== member?._id)
+      throw new ConvexError(
+        "Esta cuenta de X ya está vinculada a otro miembro.",
+      );
+    if (member)
+      await ctx.db.patch(member._id, {
+        active: true,
+        xUsername: normalizedUsername,
+        published,
+      });
+    else
+      await ctx.db.insert("members", {
+        phone: normalizedPhone,
+        active: true,
+        xUsername: normalizedUsername,
+        published,
+      });
+    return { created: !member, username: normalizedUsername, published };
   },
 });
