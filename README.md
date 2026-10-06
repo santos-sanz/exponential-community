@@ -77,3 +77,7 @@ La integración Git de Vercel despliega el frontend desde `main`. Los cambios de
 Las pruebas con `convex-test` verifican acceso anónimo, teléfonos no autorizados y revocados, normalización e importación, privacidad del resultado, publicación opcional, validación del usuario de X y prevención de cuentas duplicadas. El acceso y la publicación también se comprueban en navegador con un miembro ficticio en desarrollo; producción conserva su lista vacía.
 
 Fuentes de implementación: [Convex Auth / proveedores personalizados](https://labs.convex.dev/auth/api_reference/providers/ConvexCredentials).
+
+## Diseño
+
+El directorio adopta el estilo de [goexponential.org](https://www.goexponential.org/): fondo negro, Geist y Geist Mono, bordes finos y etiquetas verde, azul y violeta. El logo en `public/brand/exponential.svg` procede de `/logos/tef.svg` de esa web. Los contenidos y controles se adaptan al acceso por teléfono y a los perfiles de X.

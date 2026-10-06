@@ -9,9 +9,11 @@ import {
   useQuery,
 } from "convex/react";
 import Link from "next/link";
+import Image from "next/image";
 import { Component, type ReactNode, useState } from "react";
 import {
   ArrowUpRight,
+  AtSign,
   ArrowRight,
   LockKeyhole,
   LogOut,
@@ -28,13 +30,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
-function Mark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      e<span>ˣ</span>
-    </span>
-  );
-}
 function Header() {
   const { signOut } = useAuthActions();
   return (
@@ -44,22 +39,48 @@ function Header() {
         href="/"
         aria-label="Exponential Community, inicio"
       >
-        <Mark />
-        <span>
-          exponential<span className="brand-sub">community</span>
-        </span>
+        <Image
+          src="/brand/exponential.svg"
+          alt="Exponential"
+          width={36}
+          height={33}
+          className="brand-logo"
+          priority
+        />
       </Link>
-      <div className="header-right">
-        <span className="member-label">
-          <span className="dot" /> DIRECTORIO DE MIEMBROS
-        </span>
+      <nav className="header-right" aria-label="Navegación principal">
+        <a
+          className="nav-link"
+          href="https://www.goexponential.org/community"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Comunidad <ArrowUpRight size={14} />
+        </a>
+        <a
+          className="nav-link"
+          href="https://github.com/santos-sanz/exponential-community"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Código abierto <ArrowUpRight size={14} />
+        </a>
+        <Unauthenticated>
+          <a className="nav-button" href="#acceso">
+            Directorio
+          </a>
+        </Unauthenticated>
         <Authenticated>
-          <Button variant="ghost" size="sm" onClick={() => void signOut()}>
-            <LogOut size={15} />
-            <span>Salir</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="nav-button"
+            onClick={() => void signOut()}
+          >
+            <LogOut size={15} /> Salir
           </Button>
         </Authenticated>
-      </div>
+      </nav>
     </header>
   );
 }
@@ -96,45 +117,34 @@ function Login() {
   return (
     <main className="landing">
       <section className="intro">
-        <p className="eyebrow">
-          <span className="line" /> LAS CONEXIONES EMPIEZAN AQUÍ
-        </p>
-        <h1>
-          Las personas
-          <br />
-          detrás de las
-          <br />
-          <span className="accent">ideas.</span>
-        </h1>
+        <p className="eyebrow">EXPONENTIAL COMMUNITY</p>
+        <h1>Tu comunidad vive aquí.</h1>
         <p className="intro-copy">
-          La comunidad ya está en X.
+          Encuentra a los miembros de Exponential en X.
           <br />
-          Ahora es más fácil encontrarnos.
+          Conecta con quienes ya forman parte de tu comunidad.
         </p>
-        <div className="intro-footer">
-          <span className="orbit-icon" aria-hidden="true">
-            ↗
-          </span>
-          <p>
-            Un punto de encuentro.
-            <br />
-            <strong>Muchas conversaciones por empezar.</strong>
-          </p>
-        </div>
       </section>
-      <section className="access-section">
+      <section className="access-section" id="acceso">
         <Card className="access-card">
-          <div className="card-heading">
-            <span className="icon-square">
-              <LockKeyhole size={22} />
-            </span>
-            <span className="card-index">01 / ACCESO</span>
+          <div className="access-intro">
+            <div className="card-heading">
+              <span className="section-tag tag-green">Acceso</span>
+            </div>
+            <h2>Estás entre los tuyos.</h2>
+            <p className="card-copy">
+              Introduce el teléfono con el que formas parte de Exponential
+              Community para entrar al directorio.
+            </p>
+            <div className="privacy-note">
+              <ShieldCheck size={18} />
+              <p>
+                Tu teléfono es privado.
+                <br />
+                El directorio solo muestra cuentas de X.
+              </p>
+            </div>
           </div>
-          <h2>Estás entre los tuyos.</h2>
-          <p className="card-copy">
-            Introduce el teléfono con el que formas parte de Exponential
-            Community para entrar al directorio.
-          </p>
           <form onSubmit={submit}>
             <label htmlFor="phone">Tu número de teléfono</label>
             <Input
@@ -162,14 +172,6 @@ function Login() {
               </p>
             )}
           </form>
-          <div className="privacy-note">
-            <ShieldCheck size={18} />
-            <p>
-              Tu teléfono es privado.
-              <br />
-              El directorio solo muestra cuentas de X.
-            </p>
-          </div>
         </Card>
         <p className="under-card">
           Acceso exclusivo para teléfonos incluidos en la comunidad.
@@ -177,7 +179,7 @@ function Login() {
       </section>
       <section className="how-it-works" aria-label="Cómo funciona">
         <div>
-          <span>01</span>
+          <span className="section-tag tag-green">Acceso</span>
           <p>
             <strong>Entra con tu teléfono</strong>
             <br />
@@ -185,7 +187,7 @@ function Login() {
           </p>
         </div>
         <div>
-          <span>02</span>
+          <span className="section-tag tag-blue">Directorio</span>
           <p>
             <strong>Encuentra a tu comunidad</strong>
             <br />
@@ -193,7 +195,7 @@ function Login() {
           </p>
         </div>
         <div>
-          <span>03</span>
+          <span className="section-tag tag-purple">Tu perfil</span>
           <p>
             <strong>Comparte si quieres</strong>
             <br />
@@ -302,9 +304,7 @@ function Directory() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span className="x-symbol" aria-hidden="true">
-                    𝕏
-                  </span>
+                  <AtSign className="x-symbol" size={22} aria-hidden="true" />
                   <strong>@{row.username}</strong>
                   <ArrowUpRight size={18} />
                 </a>
@@ -342,7 +342,7 @@ function Directory() {
         </section>
         <aside>
           <Card className="my-profile">
-            <span className="card-index">TU PERFIL</span>
+            <span className="section-tag tag-purple">Tu perfil</span>
             <h2>Haz que te encuentren.</h2>
             <p>Puedes explorar el directorio sin compartir tu cuenta.</p>
             {!viewer ? (
@@ -355,7 +355,7 @@ function Directory() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span>𝕏</span> @{viewer.username}
+                  <AtSign size={20} aria-hidden="true" /> @{viewer.username}
                   <ArrowUpRight size={16} />
                 </a>
                 <label className="visibility">
@@ -464,7 +464,13 @@ export default function Home() {
         </AccessBoundary>
       </Authenticated>
       <footer className="footer">
-        <span>exponential community</span>
+        <a
+          href="https://www.goexponential.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Exponential Community
+        </a>
         <span>Las buenas ideas crecen cuando se conectan.</span>
         <a
           href="https://github.com/santos-sanz/exponential-community"
