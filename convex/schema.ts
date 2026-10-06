@@ -3,6 +3,17 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 export default defineSchema({
   ...authTables,
+  importedXProfiles: defineTable({
+    username: v.string(),
+    sourceUsername: v.string(),
+    sharedBy: v.union(v.string(), v.null()),
+    sharedAt: v.union(v.string(), v.null()),
+    sharedByUnreadable: v.boolean(),
+    sourceRow: v.number(),
+    sourceFile: v.string(),
+    sourceSha256: v.string(),
+    importedAt: v.number(),
+  }).index("by_username", ["username"]),
   members: defineTable({
     phone: v.string(),
     active: v.boolean(),

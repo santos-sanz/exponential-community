@@ -81,3 +81,11 @@ Fuentes de implementación: [Convex Auth / proveedores personalizados](https://l
 ## Diseño
 
 El directorio adopta el estilo de [goexponential.org](https://www.goexponential.org/): fondo negro, Geist y Geist Mono, bordes finos y etiquetas verde, azul y violeta. El logo en `public/brand/exponential.svg` procede de `/logos/tef.svg` de esa web. Los contenidos y controles se adaptan al acceso por teléfono y a los perfiles de X.
+
+## Perfiles de X pendientes de teléfonos
+
+`importedXProfiles` guarda importaciones privadas con su archivo de origen y huella SHA-256. La columna «Compartido por» de un PDF describe a quien compartió el enlace; no establece la titularidad de la cuenta. Los nombres ilegibles y fechas ausentes se conservan como datos desconocidos.
+
+La importación `xProfiles:importBatch` y la comprobación `xProfiles:auditBatch` son internas y requieren el CLI autenticado de Convex. El importador normaliza y deduplica usuarios de X, preserva los datos del primer origen y no crea miembros, concede acceso ni publica perfiles. Los archivos de importación se guardan en `private/`, fuera de Git.
+
+Para asociar los teléfonos posteriores hace falta una correspondencia explícita `phone` / `xUsername`. Nunca se deduce por el nombre de quien compartió el enlace.
