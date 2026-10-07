@@ -44,6 +44,20 @@ describe("platform directories", () => {
     ] as [DirectoryKind, string][])
       expect(() => normalizeProfile(kind, value)).toThrow();
   });
+  test("localized LinkedIn profile links retain the same canonical identity", () => {
+    expect(
+      normalizeProfile("linkedin", "https://es.linkedin.com/in/example-person")
+        .url,
+    ).toBe("https://www.linkedin.com/in/example-person");
+    const p = normalizeProfile(
+      "linkedin",
+      "https://www.linkedin.com/in/jos%C3%A9-example",
+    );
+    expect(normalizeProfile("linkedin", p.value).url).toBe(p.url);
+    expect(() =>
+      normalizeProfile("linkedin", "https://linkedin.com.evil.test/in/example"),
+    ).toThrow();
+  });
   test("anonymous callers cannot read or edit any directory", async () => {
     const t = setup();
     for (const input of inputs) {

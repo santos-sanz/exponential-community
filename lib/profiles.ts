@@ -65,18 +65,23 @@ export function normalizeProfile(
       throw new Error("Introduce un usuario de GitHub válido.");
     return { value, label: `@${value}`, url: `https://github.com/${value}` };
   }
-  if (kind === "linkedin" && /^[A-Za-z0-9_-]{3,100}$/.test(value))
+  if (kind === "linkedin" && /^[\p{L}\p{N}_-]{3,100}$/u.test(value))
     value = `https://www.linkedin.com/in/${value}`;
   if (!/^https:\/\//i.test(value)) value = `https://${value}`;
   const u = new URL(value);
   if (u.protocol !== "https:" || u.username || u.password || u.port)
     throw new Error("Usa una URL HTTPS sin credenciales ni puertos.");
   if (kind === "linkedin") {
-    const match = u.pathname.match(/^\/in\/([A-Za-z0-9_-]{3,100})\/?$/);
+    const match = u.pathname.match(/^\/in\/([^/]+)\/?$/);
+    const slug = match ? decodeURIComponent(match[1]).normalize("NFC") : "";
     if (!["linkedin.com", "www.linkedin.com"].includes(u.hostname) || !match)
       throw new Error("Usa un perfil personal: linkedin.com/in/usuario.");
-    value = match[1].toLowerCase();
-    return { value, label: value, url: `https://www.linkedin.com/in/${value}` };
+    value = slug.toLowerCase();
+    return {
+      value,
+      label: value,
+      url: `https://www.linkedin.com/in/${encodeURIComponent(value)}`,
+    };
   }
   if (
     !u.hostname.includes(".") ||
