@@ -871,6 +871,11 @@
   scroll-margin-top: 90px;
 }
 @media (max-width: 720px) {
+  .phone-input,
+  .my-profile input:not([type="checkbox"]),
+  .search-field input {
+    font-size: 16px;
+  }
   .directory {
     padding-top: 24px;
   }
