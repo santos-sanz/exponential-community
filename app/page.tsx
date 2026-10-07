@@ -13,7 +13,6 @@ import Image from "next/image";
 import { Component, type ReactNode, useRef, useState } from "react";
 import {
   ArrowUpRight,
-  AtSign,
   ArrowRight,
   LockKeyhole,
   LogOut,
@@ -26,6 +25,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import { normalizePhone } from "@/lib/phone";
 import type { CountryCode } from "libphonenumber-js/max";
+import { XProfileCard } from "@/components/XProfileCard";
 import { PhoneNumberField } from "@/components/PhoneNumberField";
 import { normalizeXUsername } from "@/lib/x";
 import { Button } from "@/components/ui/button";
@@ -251,6 +251,12 @@ function Directory() {
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  let previewUsername: string | null = null;
+  try {
+    previewUsername = username.trim() ? normalizeXUsername(username) : null;
+  } catch {
+    /* Incomplete input has no preview. */
+  }
   const visible = results.filter((row) =>
     row.username.toLowerCase().includes(search.replace(/^@/, "").toLowerCase()),
   );
@@ -301,17 +307,7 @@ function Directory() {
           ) : visible.length ? (
             <div className="profile-grid">
               {visible.map((row) => (
-                <a
-                  className="profile-card"
-                  key={row.username}
-                  href={row.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <AtSign className="x-symbol" size={22} aria-hidden="true" />
-                  <strong>@{row.username}</strong>
-                  <ArrowUpRight size={18} />
-                </a>
+                <XProfileCard key={row.username} username={row.username} />
               ))}
             </div>
           ) : (
@@ -353,15 +349,7 @@ function Directory() {
               <p role="status">Cargando perfil…</p>
             ) : viewer.username ? (
               <>
-                <a
-                  className="own-account"
-                  href={`https://x.com/${viewer.username}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <AtSign size={20} aria-hidden="true" /> @{viewer.username}
-                  <ArrowUpRight size={16} />
-                </a>
+                <XProfileCard username={viewer.username} />
                 <label className="visibility">
                   <input
                     type="checkbox"
@@ -410,24 +398,28 @@ function Directory() {
                   </label>
                   <Input
                     id="x-username"
-                    placeholder="@tuusuario"
+                    placeholder="@tuusuario o enlace de X"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    maxLength={16}
+                    maxLength={160}
                     required
                     autoComplete="off"
                   />
+                  {previewUsername && (
+                    <XProfileCard username={previewUsername} preview />
+                  )}
                   <Button
                     type="submit"
                     className="primary-button"
-                    disabled={busy || !username.trim()}
+                    disabled={busy || !previewUsername}
                   >
                     <Link2 size={17} />{" "}
                     {busy ? "Guardando…" : "Vincular mi cuenta de X"}
                   </Button>
                 </form>
                 <p className="field-help">
-                  Escribe tu @usuario y después decide si quieres aparecer.
+                  Escribe tu @usuario o pega el enlace de tu perfil. Revisa la
+                  tarjeta y después decide si quieres aparecer.
                 </p>
               </>
             )}

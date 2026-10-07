@@ -67,7 +67,10 @@ export function PhoneNumberField({
         placeholder={country === "ES" ? "612 345 678" : "Número de teléfono"}
         value={value}
         onChange={(event) => {
-          const international = internationalPhoneInput(event.target.value);
+          const international = internationalPhoneInput(
+            event.target.value,
+            country,
+          );
           if (international) {
             onCountryChange(international.country);
             onChange(international.national);

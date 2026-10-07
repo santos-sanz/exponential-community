@@ -59,13 +59,13 @@ Los teléfonos solo se procesan en el backend y la administración privada. El n
 
 ## Producción
 
-Frontend: https://exponential-community.vercel.app
+Frontend: https://exponential-directory.vercel.app
 
 Backend: proyecto `andres-sanz/exponential-community`, producción `intent-raccoon-430` (EU West).
 
 ```bash
 npx convex deploy --yes
-npx @convex-dev/auth --prod --skip-git-check --web-server-url https://exponential-community.vercel.app
+npx @convex-dev/auth --prod --skip-git-check --web-server-url https://exponential-directory.vercel.app
 ```
 
 Vercel necesita `NEXT_PUBLIC_CONVEX_URL` apuntando al despliegue de producción. Las claves JWT de Convex Auth son distintas para desarrollo y producción. No reutilices las de otro proyecto.
