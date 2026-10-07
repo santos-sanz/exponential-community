@@ -74,7 +74,13 @@ export function normalizeProfile(
   if (kind === "linkedin") {
     const match = u.pathname.match(/^\/in\/([^/]+)\/?$/);
     const slug = match ? decodeURIComponent(match[1]).normalize("NFC") : "";
-    if (!["linkedin.com", "www.linkedin.com"].includes(u.hostname) || !match)
+    if (
+      !(
+        u.hostname === "linkedin.com" ||
+        /^(?:www|[a-z]{2})\.linkedin\.com$/.test(u.hostname)
+      ) ||
+      !/^[\p{L}\p{N}_-]{3,100}$/u.test(slug)
+    )
       throw new Error("Usa un perfil personal: linkedin.com/in/usuario.");
     value = slug.toLowerCase();
     return {
