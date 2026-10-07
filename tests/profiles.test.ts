@@ -54,6 +54,11 @@ describe("platform directories", () => {
       "https://www.linkedin.com/in/jos%C3%A9-example",
     );
     expect(normalizeProfile("linkedin", p.value).url).toBe(p.url);
+    const upper = normalizeProfile(
+      "linkedin",
+      "https://www.linkedin.com/in/İ-example",
+    );
+    expect(normalizeProfile("linkedin", upper.value).url).toBe(upper.url);
     expect(() =>
       normalizeProfile("linkedin", "https://linkedin.com.evil.test/in/example"),
     ).toThrow();
