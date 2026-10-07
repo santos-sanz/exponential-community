@@ -9,6 +9,21 @@ describe("international phone input", () => {
     expect(normalizePhone("612\u00a0345\u202f678", "ES")).toBe("+34612345678");
     expect(normalizePhone("(612) 345-678", "ES")).toBe("+34612345678");
   });
+  test("spaces and optional plus signs produce the same international identity", () => {
+    for (const input of [
+      "+34612345678",
+      "+34 612 345 678",
+      "34612345678",
+      "34 612 345 678",
+      "0034 612 345 678",
+      "+ 34 + 612 345 678",
+    ]) {
+      expect(normalizePhone(input, "ES")).toBe("+34612345678");
+      expect(normalizePhone(input)).toBe("+34612345678");
+    }
+    expect(internationalPhoneInput("34 612 345 678", "ES")?.country).toBe("ES");
+    expect(internationalPhoneInput("612 345 678", "ES")).toBeNull();
+  });
   test("country choices correctly normalize national and trunk-prefix formats", () => {
     expect(normalizePhone("202 555 0123", "US")).toBe("+12025550123");
     expect(normalizePhone("020 7946 0018", "GB")).toBe("+442079460018");

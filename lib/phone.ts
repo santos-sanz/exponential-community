@@ -4,41 +4,59 @@ import {
 } from "libphonenumber-js/max";
 
 function cleanPhone(value: string): string {
-  const text = value.trim().replace(/[\u00a0\u202f]/g, " ");
-  if (!text || text.length > 40 || !/^[0-9+() .-]+$/.test(text)) {
+  const text = value.trim();
+  if (!text || text.length > 80 || !/^[0-9+() .\s-]+$/.test(text))
     throw new Error("Introduce un número válido, sin letras ni extensiones.");
-  }
-  return text.startsWith("00") ? `+${text.slice(2)}` : text;
+  const compact = text.replace(/[+() .\s-]/g, "");
+  return compact.startsWith("00")
+    ? `+${compact.slice(2)}`
+    : text.includes("+")
+      ? `+${compact}`
+      : compact;
 }
-
-/** National inputs require an explicit country. Server/admin calls stay E.164-only. */
-export function normalizePhone(value: string, country?: CountryCode): string {
-  const text = cleanPhone(value);
-  if (!text.startsWith("+") && !country) {
-    throw new Error("Incluye el prefijo internacional, por ejemplo +34.");
-  }
+function parseValid(text: string, country?: CountryCode) {
   const phone = parsePhoneNumberFromString(text, {
     defaultCountry: country,
     extract: false,
   });
-  if (!phone || phone.ext || !phone.isValid()) {
-    throw new Error(
-      "Introduce un número de teléfono válido para el país seleccionado.",
-    );
-  }
-  return phone.number;
+  return phone?.isValid() && !phone.ext ? phone : null;
 }
-
-/** Recognize a complete international paste without guessing from partial digits. */
+/** Formatting never changes identity. National numbers use the selected country. */
+export function normalizePhone(value: string, country?: CountryCode): string {
+  const text = cleanPhone(value);
+  if (text.startsWith("+")) {
+    const international = parseValid(text);
+    if (international) return international.number;
+    const national = country ? parseValid(text.slice(1), country) : null;
+    if (national) return national.number;
+  } else {
+    const national = country ? parseValid(text, country) : null;
+    if (national) return national.number;
+    const international = parseValid(`+${text}`);
+    if (international) return international.number;
+    if (!country)
+      throw new Error("Incluye el prefijo internacional, por ejemplo +34.");
+  }
+  throw new Error(
+    "Introduce un número de teléfono válido para el país seleccionado.",
+  );
+}
 export function internationalPhoneInput(
   value: string,
+  country: CountryCode = "ES",
 ): { country: CountryCode; national: string } | null {
   try {
     const text = cleanPhone(value);
-    if (!text.startsWith("+")) return null;
-    const phone = parsePhoneNumberFromString(text, { extract: false });
-    if (!phone?.isValid() || !phone.country || phone.ext) return null;
-    return { country: phone.country, national: phone.formatNational() };
+    const national = !text.startsWith("+") ? parseValid(text, country) : null;
+    if (
+      national &&
+      text !== `${national.countryCallingCode}${national.nationalNumber}`
+    )
+      return null;
+    const phone = parseValid(text.startsWith("+") ? text : `+${text}`);
+    return phone?.country
+      ? { country: phone.country, national: phone.formatNational() }
+      : null;
   } catch {
     return null;
   }

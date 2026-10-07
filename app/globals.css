@@ -748,3 +748,70 @@
   max-width: 700px;
   padding: 0 10px;
 }
+
+.x-profile-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid #596273;
+  background: #080808;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.x-profile-card:hover {
+  border-color: #acd2b7;
+  background: #12151a;
+}
+.x-profile-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.x-profile-avatar {
+  width: 46px;
+  height: 46px;
+  border: 1px solid #596273;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #acd2b7;
+}
+.x-profile-platform {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.8px;
+  color: #aeb7c5;
+}
+.x-profile-card strong {
+  font-family: var(--font-geist-mono), monospace;
+  font-weight: 400;
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.x-profile-address {
+  color: #a4acb9;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.x-profile-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #374151;
+  padding-top: 14px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+.my-profile > .x-profile-card,
+.x-profile-preview {
+  margin: 20px 0;
+}
+.x-profile-preview {
+  padding: 18px;
+}
