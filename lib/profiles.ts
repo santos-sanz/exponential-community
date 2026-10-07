@@ -65,7 +65,7 @@ export function normalizeProfile(
       throw new Error("Introduce un usuario de GitHub válido.");
     return { value, label: `@${value}`, url: `https://github.com/${value}` };
   }
-  if (kind === "linkedin" && /^[\p{L}\p{N}_-]{3,100}$/u.test(value))
+  if (kind === "linkedin" && /^[\p{L}\p{M}\p{N}_-]{3,100}$/u.test(value))
     value = `https://www.linkedin.com/in/${value}`;
   if (!/^https:\/\//i.test(value)) value = `https://${value}`;
   const u = new URL(value);
@@ -79,10 +79,10 @@ export function normalizeProfile(
         u.hostname === "linkedin.com" ||
         /^(?:www|[a-z]{2})\.linkedin\.com$/.test(u.hostname)
       ) ||
-      !/^[\p{L}\p{N}_-]{3,100}$/u.test(slug)
+      !/^[\p{L}\p{M}\p{N}_-]{3,100}$/u.test(slug)
     )
       throw new Error("Usa un perfil personal: linkedin.com/in/usuario.");
-    value = slug.toLowerCase();
+    value = slug.toLowerCase().normalize("NFC");
     return {
       value,
       label: value,
