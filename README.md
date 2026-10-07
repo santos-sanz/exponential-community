@@ -103,3 +103,7 @@ La función interna `members:registerMember` recibe `phone`, `username` y una de
 Los selectores superiores cambian entre X, GitHub, LinkedIn y webs. Cada miembro puede guardar un enlace de cada tipo y decidir por separado si publicarlo. X conserva sus asociaciones previas; las demás plataformas usan la tabla privada `profileLinks`. No se importan ni publican enlaces automáticamente.
 
 Los perfiles de GitHub aceptan usuario o URL de perfil, LinkedIn exige una URL personal `/in/`, y las webs aceptan dominios públicos HTTPS sin credenciales o puertos personalizados. Las tarjetas previsualizan el enlace antes de guardarlo. Los directorios solo muestran enlaces publicados de miembros activos, y el acceso revocado bloquea todas las plataformas.
+
+Las tarjetas de X consultan los metadatos públicos de X para mostrar nombre, foto y biografía, tanto antes de guardar como en el directorio. La ruta exige sesión y acceso activo, limita la respuesta y solo admite imágenes de los dominios de X. Si X no entrega los datos, la tarjeta conserva el enlace y avisa. No requiere credenciales de X.
+
+En móvil, el directorio aparece antes del editor; las pestañas permanecen visibles al desplazarse y tienen controles táctiles de al menos 44 px. «Mis enlaces» lleva directamente al formulario.

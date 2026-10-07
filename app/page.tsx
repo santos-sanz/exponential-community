@@ -250,6 +250,9 @@ function Directory() {
         <h1>Directorios de Exponential.</h1>
         <p>Elige qué perfiles y enlaces quieres explorar.</p>
       </div>
+      <a className="mobile-profile-shortcut" href="#mis-enlaces">
+        Mis enlaces · añadir o editar
+      </a>
       <div
         className="directory-tabs"
         role="tablist"
@@ -392,7 +395,7 @@ function DirectoryPanel({ kind }: { kind: DirectoryKind }) {
         )}
         {status === "LoadingMore" && <p role="status">Cargando más enlaces…</p>}
       </section>
-      <aside>
+      <aside id="mis-enlaces">
         <Card className="my-profile">
           <span className="section-tag tag-purple">
             {kind === "website" ? "Tu web" : `Tu ${info.label}`}
