@@ -25,9 +25,13 @@ import {
 import { api } from "@/convex/_generated/api";
 import { normalizePhone } from "@/lib/phone";
 import type { CountryCode } from "libphonenumber-js/max";
-import { XProfileCard } from "@/components/XProfileCard";
+import { ProfileCard } from "@/components/ProfileCard";
+import {
+  directoryKinds,
+  normalizeProfile,
+  type DirectoryKind,
+} from "@/lib/profiles";
 import { PhoneNumberField } from "@/components/PhoneNumberField";
-import { normalizeXUsername } from "@/lib/x";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -39,7 +43,7 @@ function Header() {
       <Link
         className="brand"
         href="/"
-        aria-label="Directorio de X de Exponential, inicio"
+        aria-label="Directorios de Exponential, inicio"
       >
         <Image
           src="/brand/exponential.svg"
@@ -122,11 +126,11 @@ function Login() {
   return (
     <main className="landing">
       <section className="intro">
-        <p className="eyebrow">EXPONENTIAL · DIRECTORIO DE X</p>
-        <h1>El directorio de X de Exponential.</h1>
+        <p className="eyebrow">EXPONENTIAL · DIRECTORIOS</p>
+        <h1>Los directorios de Exponential.</h1>
         <p className="intro-copy">
-          Encuentra las cuentas de X que los miembros de Exponential han
-          compartido.
+          Encuentra los perfiles de X, GitHub, LinkedIn y webs que los miembros
+          han compartido.
         </p>
       </section>
       <section className="access-section" id="acceso">
@@ -145,7 +149,7 @@ function Login() {
               <p>
                 Tu teléfono es privado.
                 <br />
-                El directorio solo muestra cuentas de X.
+                Los directorios solo muestran enlaces publicados.
               </p>
             </div>
           </div>
@@ -197,9 +201,9 @@ function Login() {
         <div>
           <span className="section-tag tag-blue">Directorio</span>
           <p>
-            <strong>Encuentra cuentas de X</strong>
+            <strong>Explora los directorios</strong>
             <br />
-            Consulta las cuentas de X compartidas.
+            Cambia entre X, GitHub, LinkedIn y webs.
           </p>
         </div>
         <div>
@@ -238,27 +242,85 @@ function AccessUnavailable() {
   );
 }
 function Directory() {
-  const viewer = useQuery(api.members.viewer);
+  const [kind, setKind] = useState<DirectoryKind>("x");
+  return (
+    <main className="directory">
+      <div className="directory-heading">
+        <p className="eyebrow">ENLACES COMPARTIDOS POR LOS MIEMBROS</p>
+        <h1>Directorios de Exponential.</h1>
+        <p>Elige qué perfiles y enlaces quieres explorar.</p>
+      </div>
+      <div
+        className="directory-tabs"
+        role="tablist"
+        aria-label="Elegir directorio"
+        onKeyDown={(event) => {
+          const index = directoryKinds.findIndex((item) => item.kind === kind);
+          const next =
+            event.key === "ArrowRight"
+              ? (index + 1) % 4
+              : event.key === "ArrowLeft"
+                ? (index + 3) % 4
+                : event.key === "Home"
+                  ? 0
+                  : event.key === "End"
+                    ? 3
+                    : null;
+          if (next !== null) {
+            event.preventDefault();
+            setKind(directoryKinds[next].kind);
+            event.currentTarget
+              .querySelectorAll<HTMLButtonElement>("[role=tab]")
+              [next].focus();
+          }
+        }}
+      >
+        {directoryKinds.map((item) => (
+          <button
+            key={item.kind}
+            role="tab"
+            tabIndex={kind === item.kind ? 0 : -1}
+            id={`tab-${item.kind}`}
+            aria-selected={kind === item.kind}
+            aria-controls="directory-panel"
+            className={kind === item.kind ? "selected" : ""}
+            onClick={() => setKind(item.kind)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div id="directory-panel" role="tabpanel" aria-labelledby={`tab-${kind}`}>
+        <DirectoryPanel key={kind} kind={kind} />
+      </div>
+    </main>
+  );
+}
+function DirectoryPanel({ kind }: { kind: DirectoryKind }) {
+  const info = directoryKinds.find((item) => item.kind === kind)!;
+  const viewer = useQuery(api.profiles.viewer, { kind });
   const { results, status, loadMore } = usePaginatedQuery(
-    api.members.directory,
-    {},
+    api.profiles.list,
+    { kind },
     { initialNumItems: 24 },
   );
-  const publish = useMutation(api.members.setPublished),
-    unlink = useMutation(api.members.unlink),
-    linkX = useMutation(api.members.linkX);
-  const [username, setUsername] = useState("");
-  const [search, setSearch] = useState("");
-  const [busy, setBusy] = useState(false),
+  const save = useMutation(api.profiles.save),
+    publish = useMutation(api.profiles.publish),
+    remove = useMutation(api.profiles.remove);
+  const [value, setValue] = useState(""),
+    [search, setSearch] = useState(""),
+    [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  let previewUsername: string | null = null;
+  let preview: ReturnType<typeof normalizeProfile> | null = null;
   try {
-    previewUsername = username.trim() ? normalizeXUsername(username) : null;
+    preview = value.trim() ? normalizeProfile(kind, value) : null;
   } catch {
-    /* Incomplete input has no preview. */
+    /* Incomplete inputs have no card. */
   }
   const visible = results.filter((row) =>
-    row.username.toLowerCase().includes(search.replace(/^@/, "").toLowerCase()),
+    (row.label + row.url)
+      .toLowerCase()
+      .includes(search.toLowerCase().replace(/^@/, "")),
   );
   async function update(task: () => Promise<unknown>) {
     setBusy(true);
@@ -270,176 +332,165 @@ function Directory() {
       setError(
         typeof data === "string"
           ? data
-          : "No hemos podido guardar el cambio. Comprueba el usuario e inténtalo de nuevo.",
+          : "No hemos podido guardar el cambio. Comprueba el enlace e inténtalo de nuevo.",
       );
     } finally {
       setBusy(false);
     }
   }
   return (
-    <main className="directory">
-      <div className="directory-heading">
-        <p className="eyebrow">CUENTAS COMPARTIDAS POR LOS MIEMBROS</p>
-        <h1>Directorio de X.</h1>
-        <p>Encuentra a los miembros que han compartido su cuenta de X.</p>
-      </div>
-      <div className="directory-layout">
-        <section className="profiles">
-          <div className="list-heading">
-            <h2>
-              <Users size={20} /> Directorio
-            </h2>
-            <span className="list-count">SOLO CUENTAS DE X</span>
+    <div className="directory-layout">
+      <section className="profiles">
+        <div className="list-heading">
+          <h2>
+            <Users size={20} /> {info.label}
+          </h2>
+          <span className="list-count">ENLACES PUBLICADOS</span>
+        </div>
+        <div className="search-field">
+          <Search size={18} />
+          <Input
+            aria-label={`Buscar en ${info.label}`}
+            placeholder="Buscar entre los enlaces cargados"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        {status === "LoadingFirstPage" ? (
+          <p role="status">Cargando enlaces…</p>
+        ) : visible.length ? (
+          <div className="profile-grid">
+            {visible.map((row, i) => (
+              <ProfileCard
+                key={`${row.url}-${i}`}
+                kind={kind}
+                value={row.value}
+              />
+            ))}
           </div>
-          <div className="search-field">
-            <Search size={18} />
-            <Input
-              aria-label="Buscar en las cuentas cargadas"
-              placeholder="Buscar @usuario entre las cuentas cargadas"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          {status === "LoadingFirstPage" ? (
-            <p className="empty-text" role="status">
-              Cargando cuentas…
-            </p>
-          ) : visible.length ? (
-            <div className="profile-grid">
-              {visible.map((row) => (
-                <XProfileCard key={row.username} username={row.username} />
-              ))}
-            </div>
-          ) : (
-            <Card className="empty-card">
-              <span className="empty-icon">
-                <Users size={28} />
-              </span>
-              <h3>
-                {results.length
-                  ? "No hay coincidencias en esta página."
-                  : "Las primeras conexiones están por llegar."}
-              </h3>
-              <p>
-                {results.length
-                  ? "Prueba otro usuario o carga más cuentas."
-                  : "Cuando alguien comparta su cuenta de X, aparecerá aquí. Puedes ser el primero."}
-              </p>
-            </Card>
-          )}
-          {status === "CanLoadMore" && (
-            <Button
-              variant="outline"
-              className="load-more"
-              onClick={() => loadMore(24)}
-            >
-              Cargar más cuentas
-            </Button>
-          )}
-          {status === "LoadingMore" && (
-            <p role="status">Cargando más cuentas…</p>
-          )}
-        </section>
-        <aside>
-          <Card className="my-profile">
-            <span className="section-tag tag-purple">Tu perfil</span>
-            <h2>Haz que te encuentren.</h2>
-            <p>Puedes explorar el directorio sin compartir tu cuenta.</p>
-            {!viewer ? (
-              <p role="status">Cargando perfil…</p>
-            ) : viewer.username ? (
-              <>
-                <XProfileCard username={viewer.username} />
-                <label className="visibility">
-                  <input
-                    type="checkbox"
-                    checked={viewer.published}
-                    disabled={busy}
-                    onChange={(e) =>
-                      void update(() =>
-                        publish({ published: e.target.checked }),
-                      )
-                    }
-                  />
-                  <span>
-                    Mostrar mi cuenta de X a los miembros de la comunidad
-                  </span>
-                </label>
-                <p className="visibility-status">
-                  {viewer.published
-                    ? "Tu cuenta aparece en el directorio."
-                    : "Tu cuenta está vinculada y oculta."}
-                </p>
-                <Button
-                  variant="outline"
-                  disabled={busy}
-                  onClick={() => void update(() => unlink())}
-                >
-                  <Minus size={16} /> Desvincular cuenta
-                </Button>
-              </>
-            ) : (
-              <>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    let normalized: string;
-                    try {
-                      normalized = normalizeXUsername(username);
-                    } catch (error) {
-                      setError((error as Error).message);
-                      return;
-                    }
-                    void update(() => linkX({ username: normalized }));
-                  }}
-                >
-                  <label className="x-label" htmlFor="x-username">
-                    Tu usuario de X
-                  </label>
-                  <Input
-                    id="x-username"
-                    placeholder="@tuusuario o enlace de X"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    maxLength={160}
-                    required
-                    autoComplete="off"
-                  />
-                  {previewUsername && (
-                    <XProfileCard username={previewUsername} preview />
-                  )}
-                  <Button
-                    type="submit"
-                    className="primary-button"
-                    disabled={busy || !previewUsername}
-                  >
-                    <Link2 size={17} />{" "}
-                    {busy ? "Guardando…" : "Vincular mi cuenta de X"}
-                  </Button>
-                </form>
-                <p className="field-help">
-                  Escribe tu @usuario o pega el enlace de tu perfil. Revisa la
-                  tarjeta y después decide si quieres aparecer.
-                </p>
-              </>
-            )}
-            {error && (
-              <p role="alert" className="form-error">
-                {error}
-              </p>
-            )}
-            <div className="privacy-note">
-              <ShieldCheck size={18} />
-              <p>
-                Solo compartimos tu cuenta de X.
-                <br />
-                Nunca tu número de teléfono.
-              </p>
-            </div>
+        ) : (
+          <Card className="empty-card">
+            <span className="empty-icon">
+              <Users size={28} />
+            </span>
+            <h3>
+              {results.length
+                ? "No hay coincidencias."
+                : `Todavía no hay enlaces de ${info.label} compartidos.`}
+            </h3>
+            <p>Puedes añadir el tuyo y elegir si quieres que aparezca.</p>
           </Card>
-        </aside>
-      </div>
-    </main>
+        )}
+        {status === "CanLoadMore" && (
+          <Button
+            variant="outline"
+            className="load-more"
+            onClick={() => loadMore(24)}
+          >
+            Cargar más enlaces
+          </Button>
+        )}
+        {status === "LoadingMore" && <p role="status">Cargando más enlaces…</p>}
+      </section>
+      <aside>
+        <Card className="my-profile">
+          <span className="section-tag tag-purple">
+            {kind === "website" ? "Tu web" : `Tu ${info.label}`}
+          </span>
+          <h2>Comparte tu enlace.</h2>
+          <p>Puedes consultar este directorio sin publicar tu perfil.</p>
+          {!viewer ? (
+            <p role="status">Cargando perfil…</p>
+          ) : viewer.value ? (
+            <>
+              <ProfileCard kind={kind} value={viewer.value} />
+              <label className="visibility">
+                <input
+                  type="checkbox"
+                  checked={viewer.published}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void update(() =>
+                      publish({ kind, published: e.target.checked }),
+                    )
+                  }
+                />
+                <span>
+                  {kind === "website"
+                    ? "Mostrar mi web a los miembros"
+                    : `Mostrar mi perfil de ${info.label} a los miembros`}
+                </span>
+              </label>
+              <p className="visibility-status">
+                {viewer.published
+                  ? "Tu enlace aparece en este directorio."
+                  : "Tu enlace está guardado y oculto."}
+              </p>
+              <Button
+                variant="outline"
+                disabled={busy}
+                onClick={() => void update(() => remove({ kind }))}
+              >
+                <Minus size={16} /> Eliminar enlace
+              </Button>
+            </>
+          ) : (
+            <>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (preview)
+                    void update(() => save({ kind, value: preview!.value }));
+                }}
+              >
+                <label className="x-label" htmlFor="profile-input">
+                  {kind === "website"
+                    ? "La URL de tu web"
+                    : `Tu perfil de ${info.label}`}
+                </label>
+                <Input
+                  id="profile-input"
+                  placeholder={info.placeholder}
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  maxLength={500}
+                  required
+                  autoComplete="off"
+                />
+                {preview && (
+                  <ProfileCard kind={kind} value={preview.value} preview />
+                )}
+                <Button
+                  type="submit"
+                  className="primary-button"
+                  disabled={busy || !preview}
+                >
+                  <Link2 size={17} />
+                  {busy ? "Guardando…" : "Guardar enlace"}
+                </Button>
+              </form>
+              <p className="field-help">
+                Revisa la tarjeta antes de guardar. La publicación es opcional y
+                se elige por separado en cada directorio.
+              </p>
+            </>
+          )}
+          {error && (
+            <p role="alert" className="form-error">
+              {error}
+            </p>
+          )}
+          <div className="privacy-note">
+            <ShieldCheck size={18} />
+            <p>
+              Solo compartimos el enlace que publiques.
+              <br />
+              Nunca tu número de teléfono.
+            </p>
+          </div>
+        </Card>
+      </aside>
+    </div>
   );
 }
 export default function Home() {
@@ -447,7 +498,7 @@ export default function Home() {
     <div className="site-shell">
       <Header />
       <p className="directory-scope">
-        Este sitio es únicamente el directorio de X. No es la comunidad de
+        Este sitio reúne directorios de perfiles y webs. No es la comunidad de
         Exponential.
       </p>
       <AuthLoading>
@@ -471,7 +522,7 @@ export default function Home() {
         >
           Web de Exponential
         </a>
-        <span>Solo cuentas de X compartidas por miembros.</span>
+        <span>Perfiles y webs compartidos por miembros.</span>
         <a
           href="https://github.com/santos-sanz/exponential-community"
           target="_blank"

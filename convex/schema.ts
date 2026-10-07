@@ -14,6 +14,19 @@ export default defineSchema({
     sourceSha256: v.string(),
     importedAt: v.number(),
   }).index("by_username", ["username"]),
+  profileLinks: defineTable({
+    memberId: v.id("members"),
+    kind: v.union(
+      v.literal("github"),
+      v.literal("linkedin"),
+      v.literal("website"),
+    ),
+    value: v.string(),
+    published: v.boolean(),
+  })
+    .index("by_memberId_and_kind", ["memberId", "kind"])
+    .index("by_kind_and_published", ["kind", "published"])
+    .index("by_kind_and_value", ["kind", "value"]),
   members: defineTable({
     phone: v.string(),
     active: v.boolean(),
