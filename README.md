@@ -97,3 +97,9 @@ La interfaz permite teléfonos nacionales con un país explícito; el servidor y
 Los 245 países y sus prefijos están en `lib/phone-countries.ts`; sus banderas son assets locales de `country-flag-icons` (MIT). Se regeneran con `node scripts/generate-phone-countries.mjs`, sin solicitudes a proveedores externos cuando el usuario usa el formulario.
 
 La función interna `members:registerMember` recibe `phone`, `username` y una decisión explícita de publicación. Permite registrar manualmente un miembro, comprueba que X no pertenezca a otro registro y conserva la asociación de usuario existente. Solo es invocable por operadores con acceso a Convex. Los números reales deben guardarse en `private/`, nunca en código, pruebas, commits o descripciones de PR.
+
+## Directorios por plataforma
+
+Los selectores superiores cambian entre X, GitHub, LinkedIn y webs. Cada miembro puede guardar un enlace de cada tipo y decidir por separado si publicarlo. X conserva sus asociaciones previas; las demás plataformas usan la tabla privada `profileLinks`. No se importan ni publican enlaces automáticamente.
+
+Los perfiles de GitHub aceptan usuario o URL de perfil, LinkedIn exige una URL personal `/in/`, y las webs aceptan dominios públicos HTTPS sin credenciales o puertos personalizados. Las tarjetas previsualizan el enlace antes de guardarlo. Los directorios solo muestran enlaces publicados de miembros activos, y el acceso revocado bloquea todas las plataformas.

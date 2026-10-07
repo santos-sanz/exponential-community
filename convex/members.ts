@@ -148,6 +148,12 @@ export const setActive = internalMutation({
       .unique();
     if (!member) throw new Error("Miembro no encontrado.");
     await ctx.db.patch(member._id, { active, published: false });
+    const links = await ctx.db
+      .query("profileLinks")
+      .withIndex("by_memberId_and_kind", (q) => q.eq("memberId", member._id))
+      .take(4);
+    for (const link of links)
+      await ctx.db.patch(link._id, { published: false });
     return null;
   },
 });
