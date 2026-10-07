@@ -837,3 +837,86 @@
 .directory-tabs button:hover {
   border-color: #acd2b7;
 }
+
+.x-profile-avatar:has(.x-real-avatar) {
+  width: 56px;
+  height: 56px;
+  border: 0;
+}
+.x-real-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+.x-profile-name {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.x-profile-bio {
+  font-size: 13px;
+  color: #c4cbd5;
+  line-height: 1.7;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.x-preview-status {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #a4acb9;
+}
+.mobile-profile-shortcut {
+  display: none;
+}
+#mis-enlaces {
+  scroll-margin-top: 90px;
+}
+@media (max-width: 720px) {
+  .directory {
+    padding-top: 24px;
+  }
+  .directory-heading .eyebrow {
+    display: none;
+  }
+  .directory-heading h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  .directory-heading > p:last-child {
+    font-size: 13px;
+  }
+  .mobile-profile-shortcut {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: #acd2b7;
+    padding: 14px 0;
+    min-height: 44px;
+  }
+  .directory-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin-top: 6px;
+    padding: 8px 0;
+    background: #000;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .directory-tabs button {
+    padding: 10px 13px;
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 12px;
+  }
+  .directory-layout {
+    flex-direction: column;
+    margin-top: 22px;
+  }
+  .x-profile-card {
+    padding: 20px;
+  }
+  .x-profile-card .x-profile-avatar {
+    width: 56px;
+    height: 56px;
+  }
+}
